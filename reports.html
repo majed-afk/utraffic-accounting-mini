@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTraffic Mini Accounting | القوائم المالية</title>
+    <meta name="description" content="التقارير والقوائم المالية الشهرية في البرنامج المحاسبي المصغر لشركة UTraffic.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="reports">
+    <div class="app-shell">
+        <header class="topbar site-topbar">
+            <div class="brand-block">
+                <div class="brand-logo-frame">
+                    <img src="assets/utraffic-logo.png" alt="شعار UTraffic">
+                </div>
+                <div class="brand-copy">
+                    <h1>القوائم المالية</h1>
+                </div>
+            </div>
+            <nav class="page-nav" aria-label="التنقل">
+                <a href="index.html">الرئيسية</a>
+                <a href="invoices.html">الفواتير</a>
+                <a href="quotes.html">عروض الأسعار</a>
+                <a href="customers.html">العملاء</a>
+                <a href="expenses.html">المصروفات</a>
+                <a href="statements.html">كشف الحساب</a>
+                <a class="active" href="reports.html">القوائم المالية</a>
+            </nav>
+        </header>
+
+        <section class="hero-grid">
+            <article class="hero-panel hero-panel-primary">
+                <h2>القوائم المالية الشهرية</h2>
+            </article>
+
+            <article class="hero-panel hero-panel-highlight">
+                <div class="summary-head">
+                    <h3>المؤشرات</h3>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <span>إجمالي الإيرادات</span>
+                        <strong id="reportRevenue" class="font-numbers">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>إجمالي المصروفات</span>
+                        <strong id="reportExpenses" class="font-numbers">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>صافي الربح</span>
+                        <strong id="reportNetProfit" class="font-numbers">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>فواتير مسددة</span>
+                        <strong id="reportInvoiceCount" class="font-numbers">0</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <h2>الفترة</h2>
+            </div>
+            <div class="fields-grid fields-grid-2">
+                <label class="field">
+                    <span>الشهر</span>
+                    <select id="reportMonth">
+                        <option value="1">يناير</option>
+                        <option value="2">فبراير</option>
+                        <option value="3">مارس</option>
+                        <option value="4">أبريل</option>
+                        <option value="5">مايو</option>
+                        <option value="6">يونيو</option>
+                        <option value="7">يوليو</option>
+                        <option value="8">أغسطس</option>
+                        <option value="9">سبتمبر</option>
+                        <option value="10">أكتوبر</option>
+                        <option value="11">نوفمبر</option>
+                        <option value="12">ديسمبر</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>السنة</span>
+                    <select id="reportYear"></select>
+                </label>
+            </div>
+        </section>
+
+        <section class="accounting-grid">
+            <section class="panel-card">
+                <div class="panel-head">
+                    <h2>قائمة الدخل</h2>
+                    <span class="panel-hint" id="reportPeriodLabel">-</span>
+                </div>
+                <div class="table-shell">
+                    <table class="app-table report-income-table">
+                        <thead>
+                            <tr>
+                                <th>البند</th>
+                                <th>المبلغ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incomeStatementBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel-card">
+                <div class="panel-head">
+                    <h2>تحليل المصروفات</h2>
+                </div>
+                <div id="categoryBreakdown" class="report-categories"></div>
+                <div class="chart-container chart-container-donut">
+                    <div class="panel-head">
+                        <h3>التوزيع</h3>
+                    </div>
+                    <div id="chartDonut" class="chart-donut-wrap"></div>
+                </div>
+            </section>
+        </section>
+
+        <section class="panel-card chart-panel-wide">
+            <div class="panel-head">
+                <h2>الإيرادات والمصروفات</h2>
+                <div class="chart-legend">
+                    <span class="chart-legend-item"><span class="chart-legend-dot chart-legend-revenue"></span>الإيرادات</span>
+                    <span class="chart-legend-item"><span class="chart-legend-dot chart-legend-expenses"></span>المصروفات</span>
+                </div>
+            </div>
+            <div id="chartBar" class="chart-bar-wrap"></div>
+        </section>
+
+        <section class="panel-card chart-panel-wide">
+            <div class="panel-head">
+                <h2>اتجاه صافي الربح</h2>
+            </div>
+            <div id="chartLine" class="chart-line-wrap"></div>
+        </section>
+
+        <section class="accounting-grid">
+            <section class="panel-card ledger-span">
+                <div class="panel-head">
+                    <h2>الملخص السنوي</h2>
+                </div>
+                <div class="table-shell">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>الشهر</th>
+                                <th>الإيرادات</th>
+                                <th>المصروفات</th>
+                                <th>صافي الربح</th>
+                                <th>عدد الفواتير</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trendTableBody"></tbody>
+                        <tfoot>
+                            <tr>
+                                <th>الإجمالي</th>
+                                <th id="trendTotalRevenue" class="font-numbers">0</th>
+                                <th id="trendTotalExpenses" class="font-numbers">0</th>
+                                <th id="trendTotalNet" class="font-numbers">0</th>
+                                <th id="trendTotalInvoices" class="font-numbers">0</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <script src="js/main.js"></script>
+</body>
+</html>

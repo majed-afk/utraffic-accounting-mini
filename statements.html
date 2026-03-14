@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTraffic Mini Accounting | كشف الحساب</title>
+    <meta name="description" content="صفحة السجل وكشف الحساب في البرنامج المحاسبي المصغر لشركة UTraffic.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="statements">
+    <div class="app-shell">
+        <header class="topbar site-topbar">
+            <div class="brand-block">
+                <div class="brand-logo-frame">
+                    <img src="assets/utraffic-logo.png" alt="شعار UTraffic">
+                </div>
+                <div class="brand-copy">
+                    <h1>كشف الحساب</h1>
+                </div>
+            </div>
+            <nav class="page-nav" aria-label="التنقل">
+                <a href="index.html">الرئيسية</a>
+                <a href="invoices.html">الفواتير</a>
+                <a href="quotes.html">عروض الأسعار</a>
+                <a href="customers.html">العملاء</a>
+                <a href="expenses.html">المصروفات</a>
+                <a class="active" href="statements.html">كشف الحساب</a>
+                <a href="reports.html">القوائم المالية</a>
+            </nav>
+        </header>
+
+        <section class="hero-grid">
+            <article class="hero-panel hero-panel-primary">
+                <h2>السجل وكشف الحساب</h2>
+            </article>
+
+            <article class="hero-panel hero-panel-highlight">
+                <div class="summary-head">
+                    <h3>المؤشرات</h3>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <span>إجمالي المستندات</span>
+                        <strong id="statementMetricTotal">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>المبالغ المعلقة</span>
+                        <strong id="statementMetricPending">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>المبالغ المكتملة</span>
+                        <strong id="statementMetricSettled">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>عروض الأسعار</span>
+                        <strong id="statementMetricQuotes">0</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <h2>الفلاتر</h2>
+            </div>
+            <div class="fields-grid fields-grid-3">
+                <label class="field">
+                    <span>العميل</span>
+                    <select id="statementClientFilter">
+                        <option value="">جميع العملاء</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>نوع المستند</span>
+                    <select id="statementDocTypeFilter">
+                        <option value="">الكل</option>
+                        <option value="invoice">فواتير</option>
+                        <option value="quote">عروض أسعار</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>الحالة</span>
+                    <select id="statementStatusFilter">
+                        <option value="">الكل</option>
+                        <option value="draft">قيد الإعداد</option>
+                        <option value="sent">تم الإرسال</option>
+                        <option value="confirmed">بانتظار السداد / مؤكد</option>
+                        <option value="settled">مكتمل</option>
+                    </select>
+                </label>
+            </div>
+        </section>
+
+        <section class="accounting-grid">
+            <section class="panel-card ledger-span">
+                <div class="panel-head">
+                    <h2>السجل</h2>
+                    <span class="panel-hint" id="ledgerCountHint">0 سجل</span>
+                </div>
+                <div class="table-shell">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>النوع</th>
+                                <th>الرقم</th>
+                                <th>العميل</th>
+                                <th>الإصدار</th>
+                                <th>الاستحقاق</th>
+                                <th>الحالة</th>
+                                <th>الإجمالي</th>
+                                <th>فتح</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel-card ledger-span">
+                <div class="panel-head">
+                    <h2>كشف العميل</h2>
+                    <span class="panel-hint" id="statementSelectedLabel">جميع العملاء</span>
+                </div>
+                <div class="table-shell">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>النوع</th>
+                                <th>الرقم</th>
+                                <th>الحالة</th>
+                                <th>الإصدار</th>
+                                <th>الإجمالي</th>
+                                <th>ملاحظات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statementTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <script src="js/main.js"></script>
+</body>
+</html>

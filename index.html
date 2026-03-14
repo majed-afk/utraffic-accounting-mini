@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTraffic Mini Accounting | الرئيسية</title>
+    <meta name="description" content="الصفحة الرئيسية للبرنامج المحاسبي المصغر لشركة UTraffic.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="dashboard">
+    <div class="app-shell">
+        <header class="topbar site-topbar">
+            <div class="brand-block">
+                <div class="brand-logo-frame">
+                    <img src="assets/utraffic-logo.png" alt="شعار UTraffic">
+                </div>
+                <div class="brand-copy">
+                    <h1>UTraffic Mini Accounting</h1>
+                </div>
+            </div>
+            <nav class="page-nav" aria-label="التنقل">
+                <a class="active" href="index.html">الرئيسية</a>
+                <a href="invoices.html">الفواتير</a>
+                <a href="quotes.html">عروض الأسعار</a>
+                <a href="customers.html">العملاء</a>
+                <a href="expenses.html">المصروفات</a>
+                <a href="statements.html">كشف الحساب</a>
+                <a href="reports.html">القوائم المالية</a>
+            </nav>
+        </header>
+
+        <section class="hero-grid">
+            <article class="hero-panel hero-panel-primary">
+                <h2>لوحة المتابعة الرئيسية</h2>
+                <div class="topbar-actions">
+                    <a class="btn btn-primary" href="invoices.html">إصدار فاتورة</a>
+                    <a class="btn btn-secondary" href="quotes.html">إنشاء عرض سعر</a>
+                    <a class="btn btn-secondary" href="customers.html">إدارة العملاء</a>
+                </div>
+            </article>
+
+            <article class="hero-panel hero-panel-highlight">
+                <div class="summary-head">
+                    <h3>المؤشرات</h3>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <span>العملاء</span>
+                        <strong id="dashboardCustomersMetric">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>الفواتير</span>
+                        <strong id="dashboardInvoicesMetric">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>عروض الأسعار</span>
+                        <strong id="dashboardQuotesMetric">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>المستحقات</span>
+                        <strong id="dashboardReceivablesMetric">0</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="overview-grid">
+            <article class="panel-card overview-card">
+                <span>إجمالي المصروفات</span>
+                <strong id="dashboardExpensesMetric">0</strong>
+            </article>
+            <article class="panel-card overview-card">
+                <span>صافي التدفق</span>
+                <strong id="dashboardNetMetric">0</strong>
+            </article>
+            <article class="panel-card overview-card">
+                <span>فواتير مكتملة</span>
+                <strong id="dashboardSettledInvoicesMetric">0</strong>
+            </article>
+            <article class="panel-card overview-card">
+                <span>عروض مرسلة</span>
+                <strong id="dashboardSentQuotesMetric">0</strong>
+            </article>
+            <article class="panel-card overview-card">
+                <span>آخر تحديث</span>
+                <strong id="dashboardUpdatedAt">الآن</strong>
+            </article>
+        </section>
+
+        <section class="accounting-grid">
+            <section class="panel-card">
+                <div class="panel-head">
+                    <h2>الفواتير</h2>
+                    <a class="btn btn-secondary btn-small" href="invoices.html">فتح صفحة الفواتير</a>
+                </div>
+                <div class="table-shell">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>الرقم</th>
+                                <th>العميل</th>
+                                <th>الحالة</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboardInvoicesBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel-card">
+                <div class="panel-head">
+                    <h2>عروض الأسعار</h2>
+                    <a class="btn btn-secondary btn-small" href="quotes.html">فتح صفحة العروض</a>
+                </div>
+                <div class="table-shell">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>الرقم</th>
+                                <th>العميل</th>
+                                <th>الحالة</th>
+                                <th>الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboardQuotesBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel-card">
+                <div class="panel-head">
+                    <h2>العملاء</h2>
+                    <a class="btn btn-secondary btn-small" href="customers.html">صفحة العملاء</a>
+                </div>
+                <div id="dashboardCustomersList" class="entity-list compact-entities"></div>
+            </section>
+
+            <section class="panel-card">
+                <div class="panel-head">
+                    <h2>المصروفات</h2>
+                    <a class="btn btn-secondary btn-small" href="expenses.html">صفحة المصروفات</a>
+                </div>
+                <div id="dashboardExpensesList" class="entity-list compact-entities"></div>
+            </section>
+        </section>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <script src="js/main.js"></script>
+</body>
+</html>

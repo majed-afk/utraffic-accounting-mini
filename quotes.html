@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTraffic Mini Accounting | عروض الأسعار</title>
+    <meta name="description" content="صفحة عروض الأسعار في البرنامج المحاسبي المصغر لشركة UTraffic.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="quotes" data-doc-type="quote">
+    <div class="app-shell">
+        <header class="topbar site-topbar">
+            <div class="brand-block">
+                <div class="brand-logo-frame">
+                    <img src="assets/utraffic-logo.png" alt="شعار UTraffic">
+                </div>
+                <div class="brand-copy">
+                    <h1>عروض الأسعار</h1>
+                </div>
+            </div>
+            <nav class="page-nav" aria-label="التنقل">
+                <a href="index.html">الرئيسية</a>
+                <a href="invoices.html">الفواتير</a>
+                <a class="active" href="quotes.html">عروض الأسعار</a>
+                <a href="customers.html">العملاء</a>
+                <a href="expenses.html">المصروفات</a>
+                <a href="statements.html">كشف الحساب</a>
+                <a href="reports.html">القوائم المالية</a>
+            </nav>
+        </header>
+
+        <section class="hero-grid">
+            <article class="hero-panel hero-panel-primary">
+                <h2>إصدار عروض الأسعار</h2>
+                <div class="topbar-actions">
+                    <button type="button" class="btn btn-primary" id="recordDocumentBtn">اعتماد العرض</button>
+                    <button type="button" class="btn btn-secondary" id="saveDraftBtn">حفظ كمسودة</button>
+                    <button type="button" class="btn btn-secondary" id="newDocumentBtn">عرض جديد</button>
+                </div>
+            </article>
+
+            <article class="hero-panel hero-panel-highlight">
+                <div class="summary-head">
+                    <h3 id="summaryDocLabel">عرض سعر</h3>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <span>إجمالي العرض</span>
+                        <strong id="summaryTotal">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>عدد البنود</span>
+                        <strong id="summaryItems">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>المسودات</span>
+                        <strong id="summarySaved">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>آخر حفظ</span>
+                        <strong id="autosaveStatus">الآن</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <main class="workspace-grid">
+            <section class="panel-card editor-card">
+                <div class="panel-head">
+                    <div>
+                        <h2>تفاصيل عرض السعر</h2>
+                    </div>
+                </div>
+
+                <form id="billingForm" class="billing-form">
+                    <input id="documentType" type="hidden" value="quote">
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <h3>المعلومات الأساسية</h3>
+                        </div>
+                        <div class="fields-grid fields-grid-4">
+                            <label class="field">
+                                <span>رقم العرض</span>
+                                <input id="documentNumber" type="text" placeholder="QT-2026-001">
+                            </label>
+                            <label class="field">
+                                <span>تاريخ الإصدار</span>
+                                <input id="issueDate" type="date">
+                            </label>
+                            <label class="field">
+                                <span>تاريخ الانتهاء</span>
+                                <input id="dueDate" type="date">
+                            </label>
+                            <label class="field">
+                                <span>العملة</span>
+                                <select id="currency">
+                                    <option value="SAR">ريال سعودي</option>
+                                    <option value="AED">درهم إماراتي</option>
+                                    <option value="USD">دولار أمريكي</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <h3>بيانات الشركة</h3>
+                        </div>
+                        <div class="fields-grid fields-grid-3">
+                            <label class="field">
+                                <span>اسم الشركة</span>
+                                <input id="companyName" type="text" placeholder="UTraffic">
+                            </label>
+                            <label class="field">
+                                <span>الهاتف</span>
+                                <input id="companyPhone" type="text" placeholder="+966 5X XXX XXXX">
+                            </label>
+                            <label class="field">
+                                <span>البريد الإلكتروني</span>
+                                <input id="companyEmail" type="email" placeholder="finance@utraffic.sa">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title section-title-inline">
+                            <h3>بيانات العميل</h3>
+                            <div class="inline-actions">
+                                <label class="field field-compact">
+                                    <span>عميل محفوظ</span>
+                                    <select id="clientPicker">
+                                        <option value="">عميل جديد</option>
+                                    </select>
+                                </label>
+                                <button type="button" class="btn btn-secondary btn-small" id="saveClientBtn">حفظ العميل</button>
+                            </div>
+                        </div>
+                        <div class="fields-grid fields-grid-4">
+                            <label class="field">
+                                <span>اسم العميل</span>
+                                <input id="clientName" type="text" placeholder="اسم العميل">
+                            </label>
+                            <label class="field">
+                                <span>الجهة أو المسؤول</span>
+                                <input id="clientTitle" type="text" placeholder="اسم الجهة">
+                            </label>
+                            <label class="field">
+                                <span>الهاتف</span>
+                                <input id="clientPhone" type="text" placeholder="+966 5X XXX XXXX">
+                            </label>
+                            <label class="field">
+                                <span>البريد الإلكتروني</span>
+                                <input id="clientEmail" type="email" placeholder="client@example.com">
+                            </label>
+                        </div>
+                        <label class="field field-full">
+                            <span>العنوان</span>
+                            <textarea id="clientAddress" rows="3" placeholder="المدينة - الدولة - العنوان"></textarea>
+                        </label>
+                        <label class="field field-full">
+                            <span>الرقم الضريبي</span>
+                            <input id="clientVatNumber" type="text" placeholder="مثال: 300000000000003" dir="ltr">
+                        </label>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title section-title-inline">
+                            <h3>البنود</h3>
+                            <button type="button" class="btn btn-secondary btn-small" id="addItemBtn">إضافة بند</button>
+                        </div>
+                        <div class="items-wrapper">
+                            <div class="items-head">
+                                <span>الوصف</span>
+                                <span>الكمية</span>
+                                <span>سعر الوحدة</span>
+                                <span>الإجمالي</span>
+                                <span>إجراء</span>
+                            </div>
+                            <div id="itemsList" class="items-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <h3>الملاحظات</h3>
+                        </div>
+                        <div class="fields-grid fields-grid-2">
+                            <label class="field">
+                                <span>رسالة افتتاحية</span>
+                                <textarea id="introNote" rows="4"></textarea>
+                            </label>
+                            <label class="field">
+                                <span>ملاحظات</span>
+                                <textarea id="notes" rows="4"></textarea>
+                            </label>
+                            <label class="field">
+                                <span>الشروط</span>
+                                <textarea id="terms" rows="4"></textarea>
+                            </label>
+                            <div class="totals-controls">
+                                <label class="field">
+                                    <span>الخصم</span>
+                                    <input id="discount" type="number" min="0" step="0.01" placeholder="0">
+                                </label>
+                                <label class="field">
+                                    <span>الضريبة %</span>
+                                    <input id="taxRate" type="number" min="0" step="0.01" placeholder="0">
+                                </label>
+                                <label class="field">
+                                    <span>الحالة</span>
+                                    <select id="documentStatus">
+                                        <option value="draft">قيد الإعداد</option>
+                                        <option value="sent">تم الإرسال</option>
+                                        <option value="confirmed">مؤكد</option>
+                                        <option value="settled">مكتمل</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button type="button" class="btn btn-secondary" id="printBtn">طباعة</button>
+                        <button type="button" class="btn btn-secondary" id="downloadPdfBtn">تنزيل PDF</button>
+                    </div>
+                </form>
+            </section>
+
+            <div class="sidebar-column">
+                <section class="panel-card preview-card">
+                    <div class="panel-head">
+                        <h2>المعاينة</h2>
+                    </div>
+                    <div class="preview-shell">
+                        <article class="document-paper" id="documentPreview">
+                            <div class="paper-top-line"></div>
+                            <header class="paper-header">
+                                <div class="paper-brand">
+                                    <div class="paper-logo">
+                                        <img src="assets/utraffic-logo.png" alt="شعار UTraffic">
+                                    </div>
+                                    <div class="paper-brand-copy">
+                                        <p class="paper-overline">UTraffic Billing</p>
+                                        <div class="paper-title-row">
+                                            <h2 id="previewDocTitle">عرض سعر</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="paper-meta-card">
+                                    <div class="paper-meta-grid">
+                                        <div><span>رقم المستند</span><strong id="previewNumber">-</strong></div>
+                                        <div><span>تاريخ الإصدار</span><strong id="previewIssueDate">-</strong></div>
+                                        <div><span>تاريخ الانتهاء</span><strong id="previewDueDate">-</strong></div>
+                                        <div><span>العملة</span><strong id="previewCurrency">-</strong></div>
+                                    </div>
+                                </div>
+                            </header>
+                            <section class="paper-addresses">
+                                <div class="paper-box">
+                                    <p class="paper-label">من</p>
+                                    <h3 id="previewCompanyName">UTraffic</h3>
+                                    <p id="previewCompanyMeta">finance@utraffic.sa</p>
+                                </div>
+                                <div class="paper-box">
+                                    <p class="paper-label">إلى</p>
+                                    <h3 id="previewClientName">اسم العميل</h3>
+                                    <p id="previewClientMeta">اسم الجهة</p>
+                                </div>
+                            </section>
+                            <section class="paper-main-grid">
+                                <div class="paper-table-section">
+                                    <table class="paper-table">
+                                        <thead>
+                                            <tr><th>#</th><th>الوصف</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr>
+                                        </thead>
+                                        <tbody id="previewItems"></tbody>
+                                    </table>
+                                </div>
+                                <aside class="paper-totals-card">
+                                    <div class="total-row"><span>الإجمالي الفرعي</span><strong id="previewSubtotal">0</strong></div>
+                                    <div class="total-row"><span>الخصم</span><strong id="previewDiscount">0</strong></div>
+                                    <div class="total-row"><span>الضريبة</span><strong id="previewTax">0</strong></div>
+                                    <div class="total-row total-row-grand"><span>الإجمالي النهائي</span><strong id="previewTotal">0</strong></div>
+                                </aside>
+                            </section>
+                            <section class="paper-support-grid">
+                                <div class="note-card"><p class="paper-label">ملاحظات</p><p id="previewNotes">-</p></div>
+                                <div class="note-card"><p class="paper-label">الشروط</p><p id="previewTerms">-</p></div>
+                            </section>
+                            <footer class="paper-final">
+                                <p id="previewFooterStamp">UTraffic - finance@utraffic.sa</p>
+                            </footer>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel-card history-card">
+                    <div class="panel-head">
+                        <h2>المسودات</h2>
+                    </div>
+                    <div id="draftsList" class="saved-docs"></div>
+                </section>
+
+                <section class="panel-card history-card">
+                    <div class="panel-head">
+                        <h2>السجلات</h2>
+                    </div>
+                    <div id="recentDocumentsList" class="saved-docs"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <script src="vendor/html2canvas.min.js"></script>
+    <script src="vendor/jspdf.umd.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
