@@ -943,7 +943,9 @@ function exportBackupData() {
             customers,
             expenses,
             ledger,
-            uiState
+            uiState,
+            passwords: getUserPasswords(),
+            activityLog: readJSON(ACTIVITY_LOG_KEY, [])
         }
     };
 
@@ -982,6 +984,8 @@ async function importBackupData(file) {
         ...(typeof data.uiState === "object" && data.uiState ? data.uiState : {}),
         lastUpdatedAt: new Date().toISOString()
     };
+    const importedPasswords = typeof data.passwords === "object" && data.passwords ? data.passwords : null;
+    const importedActivityLog = Array.isArray(data.activityLog) ? data.activityLog : null;
 
     const writesSucceeded = [
         writeJSON(CURRENT_DOCS_KEY, importedCurrentDocs, { silent: true }),
@@ -990,7 +994,9 @@ async function importBackupData(file) {
         writeJSON(EXPENSES_KEY, importedExpenses, { silent: true }),
         writeJSON(LEDGER_KEY, importedLedger, { silent: true }),
         writeJSON(COUNTER_KEY, importedCounters, { silent: true }),
-        writeJSON(UI_KEY, importedUiState, { silent: true })
+        writeJSON(UI_KEY, importedUiState, { silent: true }),
+        importedPasswords ? writeJSON(PASSWORDS_KEY, importedPasswords, { silent: true }) : true,
+        importedActivityLog ? writeJSON(ACTIVITY_LOG_KEY, importedActivityLog, { silent: true }) : true
     ].every(Boolean);
 
     if (!writesSucceeded) {
