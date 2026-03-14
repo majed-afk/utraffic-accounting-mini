@@ -1867,6 +1867,7 @@ function initCustomersPage() {
     const customerEmail = byId("customerEmail");
     const customerAddress = byId("customerAddress");
     const customerVatNumber = byId("customerVatNumber");
+    const customerSearchInput = byId("customerSearchInput");
     const clearCustomerBtn = byId("clearCustomerBtn");
     const customersList = byId("customersList");
 
@@ -1908,6 +1909,10 @@ function initCustomersPage() {
             customerId.value = "";
         }
     });
+
+    if (customerSearchInput) {
+        customerSearchInput.addEventListener("input", () => renderCustomersPage());
+    }
 
     if (customersList) {
         customersList.addEventListener("click", (event) => {
@@ -1958,14 +1963,28 @@ function initCustomersPage() {
         setText("customersMetricInvoices", formatNumber(invoicesCount));
         setText("customersMetricReceivables", formatMoney(receivables));
         setText("customersUpdatedAt", formatDateTime(uiState.lastUpdatedAt));
-        setText("customersCountHint", `${formatNumber(customers.length)} عميل`);
 
-        if (!customers.length) {
-            customersList.innerHTML = '<div class="empty-state">لا يوجد عملاء.</div>';
+        const searchTerm = (customerSearchInput ? customerSearchInput.value : "").trim().toLowerCase();
+        const filtered = searchTerm
+            ? customers.filter((c) => {
+                const haystack = [c.name, c.title, c.phone, c.email, c.address, c.vatNumber].join(" ").toLowerCase();
+                return haystack.includes(searchTerm);
+            })
+            : customers;
+
+        setText("customersCountHint", searchTerm
+            ? `${formatNumber(filtered.length)} من ${formatNumber(customers.length)} عميل`
+            : `${formatNumber(customers.length)} عميل`
+        );
+
+        if (!filtered.length) {
+            customersList.innerHTML = searchTerm
+                ? '<div class="empty-state">لا توجد نتائج مطابقة للبحث.</div>'
+                : '<div class="empty-state">لا يوجد عملاء.</div>';
             return;
         }
 
-        customersList.innerHTML = customers.map((customer) => {
+        customersList.innerHTML = filtered.map((customer) => {
             const stats = getCustomerStats(customer);
             return `
                 <article class="entity-card" data-id="${escapeAttribute(customer.id)}">
@@ -2179,6 +2198,7 @@ function initStatementsPage() {
     const clientFilter = byId("statementClientFilter");
     const docTypeFilter = byId("statementDocTypeFilter");
     const statusFilter = byId("statementStatusFilter");
+    const searchInput = byId("statementSearchInput");
     const ledgerBody = byId("ledgerTableBody");
     const statementBody = byId("statementTableBody");
 
@@ -2214,6 +2234,10 @@ function initStatementsPage() {
         });
     }
 
+    if (searchInput) {
+        searchInput.addEventListener("input", () => renderStatementsPage());
+    }
+
     function renderStatementOptions() {
         const options = [
             '<option value="">جميع العملاء</option>',
@@ -2239,6 +2263,7 @@ function initStatementsPage() {
     }
 
     function getFilteredLedger() {
+        const searchTerm = (searchInput ? searchInput.value : "").trim().toLowerCase();
         return ledger.filter((doc) => {
             if (uiState.statementDocTypeFilter && doc.documentType !== uiState.statementDocTypeFilter) {
                 return false;
@@ -2246,12 +2271,13 @@ function initStatementsPage() {
             if (uiState.statementStatusFilter && doc.documentStatus !== uiState.statementStatusFilter) {
                 return false;
             }
-            if (!uiState.statementClientFilter) {
-                return true;
-            }
-            if (uiState.statementClientFilter.startsWith("customer:")) {
+            if (uiState.statementClientFilter && uiState.statementClientFilter.startsWith("customer:")) {
                 const customer = findCustomerById(uiState.statementClientFilter.replace("customer:", ""));
-                return documentBelongsToCustomer(doc, customer);
+                if (!documentBelongsToCustomer(doc, customer)) return false;
+            }
+            if (searchTerm) {
+                const haystack = [doc.documentNumber, doc.clientName, doc.notes].join(" ").toLowerCase();
+                if (!haystack.includes(searchTerm)) return false;
             }
             return true;
         });
