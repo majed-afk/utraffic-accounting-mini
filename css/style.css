@@ -911,6 +911,20 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.paper-header-contract {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.paper-doc-type-label {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ink-paper);
+}
+
 .paper-contract-body {
     padding: 20px 0;
 }
