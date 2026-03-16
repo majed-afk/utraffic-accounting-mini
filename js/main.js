@@ -36,6 +36,12 @@ const STORAGE_SYNC_KEYS = new Set([
 ]);
 const SAFE_STATUS_TONES = new Set(["draft", "sent", "confirmed", "settled"]);
 
+const DEFAULT_COMPANY = {
+    name: "UTraffic",
+    phone: "",
+    email: "finance@utraffic.sa"
+};
+
 const documentLabels = {
     invoice: "فاتورة",
     quote: "عرض سعر"
@@ -528,8 +534,30 @@ function loadUiState() {
         statementDocTypeFilter: raw.statementDocTypeFilter || "",
         statementStatusFilter: raw.statementStatusFilter || "",
         reportMonth: raw.reportMonth || "",
-        reportYear: raw.reportYear || ""
+        reportYear: raw.reportYear || "",
+        companyName: raw.companyName || DEFAULT_COMPANY.name,
+        companyPhone: raw.companyPhone || DEFAULT_COMPANY.phone,
+        companyEmail: raw.companyEmail || DEFAULT_COMPANY.email
     };
+}
+
+function getCompanyDefaults() {
+    return {
+        name: uiState.companyName || DEFAULT_COMPANY.name,
+        phone: uiState.companyPhone || DEFAULT_COMPANY.phone,
+        email: uiState.companyEmail || DEFAULT_COMPANY.email
+    };
+}
+
+function updateCompanyDefaults(name, phone, email) {
+    const trimName = (name || "").trim();
+    const trimPhone = (phone || "").trim();
+    const trimEmail = (email || "").trim();
+    let changed = false;
+    if (trimName && trimName !== uiState.companyName) { uiState.companyName = trimName; changed = true; }
+    if (trimPhone && trimPhone !== uiState.companyPhone) { uiState.companyPhone = trimPhone; changed = true; }
+    if (trimEmail && trimEmail !== uiState.companyEmail) { uiState.companyEmail = trimEmail; changed = true; }
+    if (changed) saveUiState();
 }
 
 function getCounters() {
@@ -622,9 +650,9 @@ function createTemplateState(type, allocateNumber = true) {
         issueDate: getToday(),
         dueDate: getRelativeDate(type === "invoice" ? 14 : 7),
         currency: "SAR",
-        companyName: "UTraffic",
-        companyPhone: "+966 5X XXX XXXX",
-        companyEmail: "finance@utraffic.sa",
+        companyName: getCompanyDefaults().name,
+        companyPhone: getCompanyDefaults().phone,
+        companyEmail: getCompanyDefaults().email,
         clientName: "",
         clientTitle: "",
         clientPhone: "",
@@ -1723,6 +1751,7 @@ function initBillingPage(type) {
         if (saveCurrentDocs()) {
             setText("autosaveStatus", formatTime(new Date()));
         }
+        updateCompanyDefaults(docState.companyName, docState.companyPhone, docState.companyEmail);
     }
 
     function queueCurrentDocPersist() {
@@ -2332,10 +2361,12 @@ function initContractsPage() {
     function clearForm() {
         editingId = null;
         if (form) form.reset();
+        const co = getCompanyDefaults();
         if (fieldMap.contractNumber) fieldMap.contractNumber.value = previewNumber("contract");
         if (fieldMap.contractDate) fieldMap.contractDate.value = getToday();
-        if (fieldMap.contractCompanyName) fieldMap.contractCompanyName.value = "UTraffic";
-        if (fieldMap.contractCompanyEmail) fieldMap.contractCompanyEmail.value = "finance@utraffic.sa";
+        if (fieldMap.contractCompanyName) fieldMap.contractCompanyName.value = co.name;
+        if (fieldMap.contractCompanyPhone) fieldMap.contractCompanyPhone.value = co.phone;
+        if (fieldMap.contractCompanyEmail) fieldMap.contractCompanyEmail.value = co.email;
         renderPreview();
     }
 
@@ -2467,6 +2498,7 @@ function initContractsPage() {
         }
 
         saveContracts();
+        updateCompanyDefaults(state.companyName, state.companyPhone, state.companyEmail);
         logActivity("save", "contract", state.id, state.contractNumber, existingIndex >= 0 ? "تعديل عقد" : "حفظ عقد جديد");
         renderAll();
         showToast(existingIndex >= 0 ? "تم تحديث العقد" : "تم حفظ العقد");
@@ -2539,6 +2571,7 @@ function initContractsPage() {
     }
 
     // Set defaults for new contract on page load
+    const company = getCompanyDefaults();
     if (fieldMap.contractNumber && !fieldMap.contractNumber.value) {
         fieldMap.contractNumber.value = previewNumber("contract");
     }
@@ -2546,10 +2579,13 @@ function initContractsPage() {
         fieldMap.contractDate.value = getToday();
     }
     if (fieldMap.contractCompanyName && !fieldMap.contractCompanyName.value) {
-        fieldMap.contractCompanyName.value = "UTraffic";
+        fieldMap.contractCompanyName.value = company.name;
+    }
+    if (fieldMap.contractCompanyPhone && !fieldMap.contractCompanyPhone.value) {
+        fieldMap.contractCompanyPhone.value = company.phone;
     }
     if (fieldMap.contractCompanyEmail && !fieldMap.contractCompanyEmail.value) {
-        fieldMap.contractCompanyEmail.value = "finance@utraffic.sa";
+        fieldMap.contractCompanyEmail.value = company.email;
     }
 
     renderAll();
