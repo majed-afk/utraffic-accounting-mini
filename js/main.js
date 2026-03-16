@@ -3510,9 +3510,8 @@ async function downloadPdfFromPreview(previewElement, doc) {
     const pdf = new jsPdfCtor("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 5;
+    const margin = 10;
     const maxWidth = pageWidth - margin * 2;
-    const imageData = canvas.toDataURL("image/png");
 
     const imageWidth = maxWidth;
     const imageHeight = (canvas.height * imageWidth) / canvas.width;
@@ -3521,26 +3520,33 @@ async function downloadPdfFromPreview(previewElement, doc) {
 
     if (imageHeight <= maxHeight) {
         const y = (pageHeight - imageHeight) / 2;
-        pdf.addImage(imageData, "PNG", x, y, imageWidth, imageHeight, undefined, "FAST");
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", x, y, imageWidth, imageHeight, undefined, "FAST");
     } else {
-        const pageContentHeightPx = (maxHeight / imageWidth) * canvas.width;
-        const totalPages = Math.ceil(canvas.height / pageContentHeightPx);
+        const pxPerMm = canvas.width / imageWidth;
+        const pageContentPx = maxHeight * pxPerMm;
+        const overlapPx = 20 * pxPerMm;
+        const stepPx = pageContentPx - overlapPx;
+        let offsetPx = 0;
+        let pageIndex = 0;
 
-        for (let i = 0; i < totalPages; i++) {
-            if (i > 0) pdf.addPage();
+        while (offsetPx < canvas.height) {
+            if (pageIndex > 0) pdf.addPage();
 
-            const sliceY = i * pageContentHeightPx;
-            const sliceH = Math.min(pageContentHeightPx, canvas.height - sliceY);
+            const sliceH = Math.min(pageContentPx, canvas.height - offsetPx);
 
             const sliceCanvas = document.createElement("canvas");
             sliceCanvas.width = canvas.width;
             sliceCanvas.height = sliceH;
             const ctx = sliceCanvas.getContext("2d");
-            ctx.drawImage(canvas, 0, sliceY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+            ctx.fillStyle = "#fffdf9";
+            ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+            ctx.drawImage(canvas, 0, offsetPx, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
 
-            const sliceData = sliceCanvas.toDataURL("image/png");
-            const sliceImgHeight = (sliceH * imageWidth) / canvas.width;
-            pdf.addImage(sliceData, "PNG", x, margin, imageWidth, sliceImgHeight, undefined, "FAST");
+            const sliceImgHeight = sliceH / pxPerMm;
+            pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", x, margin, imageWidth, sliceImgHeight, undefined, "FAST");
+
+            offsetPx += stepPx;
+            pageIndex++;
         }
     }
 
