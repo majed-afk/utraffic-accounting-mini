@@ -539,7 +539,8 @@ function getCounters() {
 function normalizeCounters(counters = {}) {
     return {
         invoice: Math.max(0, Math.floor(toNumber(counters.invoice, 0))),
-        quote: Math.max(0, Math.floor(toNumber(counters.quote, 0)))
+        quote: Math.max(0, Math.floor(toNumber(counters.quote, 0))),
+        contract: Math.max(0, Math.floor(toNumber(counters.contract, 0)))
     };
 }
 
@@ -551,19 +552,24 @@ function saveCounters(counters) {
     return saved;
 }
 
+function getTypePrefix(type) {
+    if (type === "invoice") return "INV";
+    if (type === "quote") return "QT";
+    if (type === "contract") return "CON";
+    return "DOC";
+}
+
 function generateNextNumber(type) {
     const counters = getCounters();
     counters[type] = (counters[type] || 0) + 1;
     saveCounters(counters);
-    const prefix = type === "invoice" ? "INV" : "QT";
-    return `${prefix}-${new Date().getFullYear()}-${String(counters[type]).padStart(3, "0")}`;
+    return `${getTypePrefix(type)}-${new Date().getFullYear()}-${String(counters[type]).padStart(3, "0")}`;
 }
 
 function previewNumber(type) {
     const counters = getCounters();
-    const prefix = type === "invoice" ? "INV" : "QT";
     const nextSequence = (counters[type] || 0) + 1;
-    return `${prefix}-${new Date().getFullYear()}-${String(nextSequence).padStart(3, "0")}`;
+    return `${getTypePrefix(type)}-${new Date().getFullYear()}-${String(nextSequence).padStart(3, "0")}`;
 }
 
 function getDefaultIntro(type) {
@@ -2326,6 +2332,10 @@ function initContractsPage() {
     function clearForm() {
         editingId = null;
         if (form) form.reset();
+        if (fieldMap.contractNumber) fieldMap.contractNumber.value = previewNumber("contract");
+        if (fieldMap.contractDate) fieldMap.contractDate.value = getToday();
+        if (fieldMap.contractCompanyName) fieldMap.contractCompanyName.value = "UTraffic";
+        if (fieldMap.contractCompanyEmail) fieldMap.contractCompanyEmail.value = "finance@utraffic.sa";
         renderPreview();
     }
 
@@ -2440,7 +2450,7 @@ function initContractsPage() {
 
     addClick(saveBtn, () => {
         const state = getFormState();
-        if (!state.contractNumber && !state.clientName && !state.subject) {
+        if (!state.clientName && !state.subject) {
             showToast("أدخل بيانات العقد قبل الحفظ");
             return;
         }
@@ -2448,10 +2458,12 @@ function initContractsPage() {
         const existingIndex = contracts.findIndex((c) => c.id === state.id);
         state.savedAt = new Date().toISOString();
 
-        if (existingIndex >= 0) {
-            contracts[existingIndex] = state;
-        } else {
+        if (existingIndex < 0) {
+            state.contractNumber = generateNextNumber("contract");
+            if (fieldMap.contractNumber) fieldMap.contractNumber.value = state.contractNumber;
             contracts.unshift(state);
+        } else {
+            contracts[existingIndex] = state;
         }
 
         saveContracts();
@@ -2524,6 +2536,20 @@ function initContractsPage() {
                 showToast("تم حذف العقد");
             }
         });
+    }
+
+    // Set defaults for new contract on page load
+    if (fieldMap.contractNumber && !fieldMap.contractNumber.value) {
+        fieldMap.contractNumber.value = previewNumber("contract");
+    }
+    if (fieldMap.contractDate && !fieldMap.contractDate.value) {
+        fieldMap.contractDate.value = getToday();
+    }
+    if (fieldMap.contractCompanyName && !fieldMap.contractCompanyName.value) {
+        fieldMap.contractCompanyName.value = "UTraffic";
+    }
+    if (fieldMap.contractCompanyEmail && !fieldMap.contractCompanyEmail.value) {
+        fieldMap.contractCompanyEmail.value = "finance@utraffic.sa";
     }
 
     renderAll();
