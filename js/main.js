@@ -3505,27 +3505,34 @@ async function renderDocumentCanvas(previewElement) {
 }
 
 async function downloadPdfFromPreview(previewElement, doc) {
+    // Force full A4 width for crisp render
+    const origStyle = previewElement.getAttribute("style") || "";
+    previewElement.style.width = "794px";
+    previewElement.style.maxWidth = "none";
+    previewElement.style.borderRadius = "0";
+    previewElement.style.boxShadow = "none";
+
     const canvas = await renderDocumentCanvas(previewElement);
+    previewElement.setAttribute("style", origStyle);
+
     const jsPdfCtor = window.jspdf?.jsPDF || window.jsPDF;
     const pdf = new jsPdfCtor("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10;
+    const margin = 8;
     const maxWidth = pageWidth - margin * 2;
 
     const imageWidth = maxWidth;
     const imageHeight = (canvas.height * imageWidth) / canvas.width;
-    const maxHeight = pageHeight - margin * 2;
     const x = (pageWidth - imageWidth) / 2;
+    const maxHeight = pageHeight - margin * 2;
 
     if (imageHeight <= maxHeight) {
         const y = (pageHeight - imageHeight) / 2;
         pdf.addImage(canvas.toDataURL("image/png"), "PNG", x, y, imageWidth, imageHeight, undefined, "FAST");
     } else {
         const pxPerMm = canvas.width / imageWidth;
-        const pageContentPx = maxHeight * pxPerMm;
-        const overlapPx = 20 * pxPerMm;
-        const stepPx = pageContentPx - overlapPx;
+        const pageContentPx = Math.floor(maxHeight * pxPerMm);
         let offsetPx = 0;
         let pageIndex = 0;
 
@@ -3533,7 +3540,6 @@ async function downloadPdfFromPreview(previewElement, doc) {
             if (pageIndex > 0) pdf.addPage();
 
             const sliceH = Math.min(pageContentPx, canvas.height - offsetPx);
-
             const sliceCanvas = document.createElement("canvas");
             sliceCanvas.width = canvas.width;
             sliceCanvas.height = sliceH;
@@ -3545,7 +3551,7 @@ async function downloadPdfFromPreview(previewElement, doc) {
             const sliceImgHeight = sliceH / pxPerMm;
             pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", x, margin, imageWidth, sliceImgHeight, undefined, "FAST");
 
-            offsetPx += stepPx;
+            offsetPx += pageContentPx;
             pageIndex++;
         }
     }
