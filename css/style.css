@@ -737,12 +737,12 @@ button {
 }
 
 .document-paper {
-    width: min(100%, 760px);
+    width: min(100%, 794px);
     margin: 0 auto;
     background: var(--bg-paper);
     color: var(--ink-paper);
     border-radius: 26px;
-    padding: 24px 24px 18px;
+    padding: 32px 36px 24px;
     min-height: 980px;
     box-shadow: 0 24px 80px rgba(32, 14, 61, 0.16);
     position: relative;
@@ -912,21 +912,21 @@ button {
 }
 
 .paper-contract-body {
-    padding: 16px 0;
+    padding: 20px 0;
 }
 
 .paper-contract-subject {
     font-family: var(--font-heading);
-    font-size: 1.05rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: var(--ink-paper);
-    margin: 0 0 12px;
+    margin: 0 0 16px;
     text-align: center;
 }
 
 .paper-contract-text {
-    font-size: 0.82rem;
-    line-height: 1.9;
+    font-size: 1rem;
+    line-height: 2;
     color: var(--ink-paper);
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -935,10 +935,10 @@ button {
 .paper-signatures {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    padding: 24px 0 8px;
-    margin-top: 16px;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    gap: 40px;
+    padding: 32px 0 12px;
+    margin-top: 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .paper-signature-block {
@@ -946,17 +946,18 @@ button {
 }
 
 .paper-signature-block .paper-label {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
 }
 
 .paper-signature-line {
-    width: 80%;
-    margin: 40px auto 8px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    width: 70%;
+    margin: 48px auto 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 .paper-signature-block p:last-child {
-    font-size: 0.78rem;
+    font-size: 0.88rem;
     color: var(--ink-paper);
     font-weight: 500;
 }

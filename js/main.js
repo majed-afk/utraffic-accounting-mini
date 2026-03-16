@@ -3512,20 +3512,37 @@ async function downloadPdfFromPreview(previewElement, doc) {
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 5;
     const maxWidth = pageWidth - margin * 2;
-    const maxHeight = pageHeight - margin * 2;
     const imageData = canvas.toDataURL("image/png");
 
-    let imageWidth = maxWidth;
-    let imageHeight = (canvas.height * imageWidth) / canvas.width;
-
-    if (imageHeight > maxHeight) {
-        imageHeight = maxHeight;
-        imageWidth = (canvas.width * imageHeight) / canvas.height;
-    }
-
+    const imageWidth = maxWidth;
+    const imageHeight = (canvas.height * imageWidth) / canvas.width;
+    const maxHeight = pageHeight - margin * 2;
     const x = (pageWidth - imageWidth) / 2;
-    const y = (pageHeight - imageHeight) / 2;
-    pdf.addImage(imageData, "PNG", x, y, imageWidth, imageHeight, undefined, "FAST");
+
+    if (imageHeight <= maxHeight) {
+        const y = (pageHeight - imageHeight) / 2;
+        pdf.addImage(imageData, "PNG", x, y, imageWidth, imageHeight, undefined, "FAST");
+    } else {
+        const pageContentHeightPx = (maxHeight / imageWidth) * canvas.width;
+        const totalPages = Math.ceil(canvas.height / pageContentHeightPx);
+
+        for (let i = 0; i < totalPages; i++) {
+            if (i > 0) pdf.addPage();
+
+            const sliceY = i * pageContentHeightPx;
+            const sliceH = Math.min(pageContentHeightPx, canvas.height - sliceY);
+
+            const sliceCanvas = document.createElement("canvas");
+            sliceCanvas.width = canvas.width;
+            sliceCanvas.height = sliceH;
+            const ctx = sliceCanvas.getContext("2d");
+            ctx.drawImage(canvas, 0, sliceY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+
+            const sliceData = sliceCanvas.toDataURL("image/png");
+            const sliceImgHeight = (sliceH * imageWidth) / canvas.width;
+            pdf.addImage(sliceData, "PNG", x, margin, imageWidth, sliceImgHeight, undefined, "FAST");
+        }
+    }
 
     const safeNumber = (doc.documentNumber || doc.id || "document").replace(/[^\w-]+/g, "-");
     pdf.save(`${doc.documentType}-${safeNumber}.pdf`);
