@@ -911,6 +911,56 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.paper-contract-body {
+    padding: 16px 0;
+}
+
+.paper-contract-subject {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink-paper);
+    margin: 0 0 12px;
+    text-align: center;
+}
+
+.paper-contract-text {
+    font-size: 0.82rem;
+    line-height: 1.9;
+    color: var(--ink-paper);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.paper-signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding: 24px 0 8px;
+    margin-top: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.paper-signature-block {
+    text-align: center;
+}
+
+.paper-signature-block .paper-label {
+    margin-bottom: 8px;
+}
+
+.paper-signature-line {
+    width: 80%;
+    margin: 40px auto 8px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.paper-signature-block p:last-child {
+    font-size: 0.78rem;
+    color: var(--ink-paper);
+    font-weight: 500;
+}
+
 .paper-totals-card {
     padding: 14px 16px;
     border-radius: 18px;

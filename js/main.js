@@ -8,6 +8,7 @@ const LEGACY_COUNTER_KEY_V1 = "utraffic-accounting-counters-v1";
 const CUSTOMERS_KEY = "utraffic-accounting-customers-v2";
 const EXPENSES_KEY = "utraffic-accounting-expenses-v2";
 const LEDGER_KEY = "utraffic-accounting-ledger-v2";
+const CONTRACTS_KEY = "utraffic-accounting-contracts-v1";
 const UI_KEY = "utraffic-accounting-ui-v3";
 const BACKUP_VERSION = 1;
 const AUTOSAVE_DELAY_MS = 500;
@@ -28,6 +29,7 @@ const STORAGE_SYNC_KEYS = new Set([
     CUSTOMERS_KEY,
     EXPENSES_KEY,
     LEDGER_KEY,
+    CONTRACTS_KEY,
     UI_KEY,
     ACTIVITY_LOG_KEY,
     PASSWORDS_KEY
@@ -84,6 +86,7 @@ let customers = [];
 let expenses = [];
 let ledger = [];
 let drafts = [];
+let contracts = [];
 let currentDocs = {};
 
 initDefaultPasswords();
@@ -100,6 +103,7 @@ function bootApp() {
     expenses = normalizeExpenses(readJSON(EXPENSES_KEY, []));
     ledger = normalizeLedger(readJSON(LEDGER_KEY, []));
     drafts = normalizeDrafts(readJSON(DRAFTS_KEY, readJSON(LEGACY_DRAFTS_KEY_V1, [])));
+    contracts = normalizeContracts(readJSON(CONTRACTS_KEY, []));
     currentDocs = loadCurrentDocs();
 
     saveCurrentDocs();
@@ -810,6 +814,43 @@ function saveLedger() {
     return saved;
 }
 
+function normalizeContract(entry = {}) {
+    return {
+        id: entry.id || crypto.randomUUID(),
+        contractNumber: entry.contractNumber || "",
+        contractDate: entry.contractDate || "",
+        contractValue: toNumber(entry.contractValue, 0),
+        currency: entry.currency || "SAR",
+        companyName: entry.companyName || "",
+        companyPhone: entry.companyPhone || "",
+        companyEmail: entry.companyEmail || "",
+        clientName: entry.clientName || "",
+        clientTitle: entry.clientTitle || "",
+        clientPhone: entry.clientPhone || "",
+        clientEmail: entry.clientEmail || "",
+        clientAddress: entry.clientAddress || "",
+        subject: entry.subject || "",
+        body: entry.body || "",
+        signatory1: entry.signatory1 || "",
+        signatory2: entry.signatory2 || "",
+        savedAt: entry.savedAt || new Date().toISOString()
+    };
+}
+
+function normalizeContracts(list = []) {
+    return Array.isArray(list)
+        ? list.map(normalizeContract).sort((a, b) => (b.savedAt || "").localeCompare(a.savedAt || ""))
+        : [];
+}
+
+function saveContracts() {
+    const saved = writeJSON(CONTRACTS_KEY, contracts);
+    if (saved) {
+        markUpdated();
+    }
+    return saved;
+}
+
 function saveUiState() {
     uiState.lastUpdatedAt = new Date().toISOString();
     return writeJSON(UI_KEY, uiState);
@@ -848,6 +889,7 @@ function refreshStoredState() {
     expenses = normalizeExpenses(readJSON(EXPENSES_KEY, []));
     ledger = normalizeLedger(readJSON(LEDGER_KEY, []));
     drafts = normalizeDrafts(readJSON(DRAFTS_KEY, readJSON(LEGACY_DRAFTS_KEY_V1, [])));
+    contracts = normalizeContracts(readJSON(CONTRACTS_KEY, []));
     currentDocs = loadCurrentDocs();
 }
 
@@ -943,6 +985,7 @@ function exportBackupData() {
             customers,
             expenses,
             ledger,
+            contracts,
             uiState,
             passwords: getUserPasswords(),
             activityLog: readJSON(ACTIVITY_LOG_KEY, [])
@@ -978,6 +1021,7 @@ async function importBackupData(file) {
     const importedCustomers = normalizeCustomers(data.customers || []);
     const importedExpenses = normalizeExpenses(data.expenses || []);
     const importedLedger = normalizeLedger(data.ledger || []);
+    const importedContracts = normalizeContracts(data.contracts || []);
     const importedCounters = normalizeCounters(data.counters || {});
     const importedUiState = {
         ...loadUiState(),
@@ -993,6 +1037,7 @@ async function importBackupData(file) {
         writeJSON(CUSTOMERS_KEY, importedCustomers, { silent: true }),
         writeJSON(EXPENSES_KEY, importedExpenses, { silent: true }),
         writeJSON(LEDGER_KEY, importedLedger, { silent: true }),
+        writeJSON(CONTRACTS_KEY, importedContracts, { silent: true }),
         writeJSON(COUNTER_KEY, importedCounters, { silent: true }),
         writeJSON(UI_KEY, importedUiState, { silent: true }),
         importedPasswords ? writeJSON(PASSWORDS_KEY, importedPasswords, { silent: true }) : true,
@@ -1227,6 +1272,10 @@ function initPage() {
 
     if (page === "statements") {
         return initStatementsPage();
+    }
+
+    if (page === "contracts") {
+        return initContractsPage();
     }
 
     if (page === "reports") {
@@ -2195,6 +2244,292 @@ function initExpensesPage() {
 
     return {
         refresh: renderExpensesPage,
+        flush: () => {}
+    };
+}
+
+function initContractsPage() {
+    const form = byId("contractForm");
+    const saveBtn = byId("saveContractBtn");
+    const newBtn = byId("newContractBtn");
+    const printBtn = byId("contractPrintBtn");
+    const pdfBtn = byId("contractDownloadPdfBtn");
+    const preview = byId("contractPreview");
+    const savedList = byId("savedContractsList");
+    const searchInput = byId("contractSearchInput");
+    const clientPicker = byId("contractClientPicker");
+
+    const fieldMap = {
+        contractNumber: byId("contractNumber"),
+        contractDate: byId("contractDate"),
+        contractValue: byId("contractValue"),
+        contractCurrency: byId("contractCurrency"),
+        contractCompanyName: byId("contractCompanyName"),
+        contractCompanyPhone: byId("contractCompanyPhone"),
+        contractCompanyEmail: byId("contractCompanyEmail"),
+        contractClientName: byId("contractClientName"),
+        contractClientTitle: byId("contractClientTitle"),
+        contractClientPhone: byId("contractClientPhone"),
+        contractClientEmail: byId("contractClientEmail"),
+        contractClientAddress: byId("contractClientAddress"),
+        contractSubject: byId("contractSubject"),
+        contractBody: byId("contractBody"),
+        contractSignatory1: byId("contractSignatory1"),
+        contractSignatory2: byId("contractSignatory2")
+    };
+
+    let editingId = null;
+
+    function getFormState() {
+        return normalizeContract({
+            id: editingId || crypto.randomUUID(),
+            contractNumber: (fieldMap.contractNumber?.value || "").trim(),
+            contractDate: fieldMap.contractDate?.value || "",
+            contractValue: toNumber(fieldMap.contractValue?.value, 0),
+            currency: fieldMap.contractCurrency?.value || "SAR",
+            companyName: (fieldMap.contractCompanyName?.value || "").trim(),
+            companyPhone: (fieldMap.contractCompanyPhone?.value || "").trim(),
+            companyEmail: (fieldMap.contractCompanyEmail?.value || "").trim(),
+            clientName: (fieldMap.contractClientName?.value || "").trim(),
+            clientTitle: (fieldMap.contractClientTitle?.value || "").trim(),
+            clientPhone: (fieldMap.contractClientPhone?.value || "").trim(),
+            clientEmail: (fieldMap.contractClientEmail?.value || "").trim(),
+            clientAddress: (fieldMap.contractClientAddress?.value || "").trim(),
+            subject: (fieldMap.contractSubject?.value || "").trim(),
+            body: (fieldMap.contractBody?.value || "").trim(),
+            signatory1: (fieldMap.contractSignatory1?.value || "").trim(),
+            signatory2: (fieldMap.contractSignatory2?.value || "").trim()
+        });
+    }
+
+    function loadIntoForm(contract) {
+        editingId = contract.id;
+        if (fieldMap.contractNumber) fieldMap.contractNumber.value = contract.contractNumber;
+        if (fieldMap.contractDate) fieldMap.contractDate.value = contract.contractDate;
+        if (fieldMap.contractValue) fieldMap.contractValue.value = contract.contractValue || "";
+        if (fieldMap.contractCurrency) fieldMap.contractCurrency.value = contract.currency;
+        if (fieldMap.contractCompanyName) fieldMap.contractCompanyName.value = contract.companyName;
+        if (fieldMap.contractCompanyPhone) fieldMap.contractCompanyPhone.value = contract.companyPhone;
+        if (fieldMap.contractCompanyEmail) fieldMap.contractCompanyEmail.value = contract.companyEmail;
+        if (fieldMap.contractClientName) fieldMap.contractClientName.value = contract.clientName;
+        if (fieldMap.contractClientTitle) fieldMap.contractClientTitle.value = contract.clientTitle;
+        if (fieldMap.contractClientPhone) fieldMap.contractClientPhone.value = contract.clientPhone;
+        if (fieldMap.contractClientEmail) fieldMap.contractClientEmail.value = contract.clientEmail;
+        if (fieldMap.contractClientAddress) fieldMap.contractClientAddress.value = contract.clientAddress;
+        if (fieldMap.contractSubject) fieldMap.contractSubject.value = contract.subject;
+        if (fieldMap.contractBody) fieldMap.contractBody.value = contract.body;
+        if (fieldMap.contractSignatory1) fieldMap.contractSignatory1.value = contract.signatory1;
+        if (fieldMap.contractSignatory2) fieldMap.contractSignatory2.value = contract.signatory2;
+        renderPreview();
+    }
+
+    function clearForm() {
+        editingId = null;
+        if (form) form.reset();
+        renderPreview();
+    }
+
+    function renderPreview() {
+        const state = getFormState();
+        setText("previewContractNumber", state.contractNumber || "-");
+        setText("previewContractDate", formatDate(state.contractDate));
+        setText("previewContractValue", state.contractValue ? formatMoney(state.contractValue, state.currency) : "-");
+        setText("previewContractCurrency", state.currency);
+        setText("previewContractCompany", state.companyName || "UTraffic");
+        setHtml("previewContractCompanyMeta", formatMultiline([state.companyPhone, state.companyEmail]));
+        setText("previewContractClient", state.clientName || "اسم العميل");
+        setHtml("previewContractClientMeta", formatMultiline([state.clientTitle, state.clientPhone, state.clientEmail, state.clientAddress]));
+        setText("previewContractSubject", state.subject || "موضوع العقد");
+
+        const bodyEl = byId("previewContractBody");
+        if (bodyEl) {
+            bodyEl.innerHTML = state.body
+                ? escapeHtml(state.body).replace(/\n/g, "<br>")
+                : '<span style="color: var(--ink-muted)">نص العقد سيظهر هنا...</span>';
+        }
+
+        setText("previewSignatory1", state.signatory1 || "ممثل الطرف الأول");
+        setText("previewSignatory2", state.signatory2 || "ممثل الطرف الثاني");
+        setText("previewContractFooter", [state.companyEmail, state.companyPhone].filter(Boolean).join(" - ") || "UTraffic");
+    }
+
+    function renderMetrics() {
+        const totalValue = contracts.reduce((sum, c) => sum + toNumber(c.contractValue, 0), 0);
+        setText("contractsMetricTotal", formatNumber(contracts.length));
+        setText("contractsMetricValue", formatMoney(totalValue));
+        setText("contractsMetricActive", formatNumber(contracts.length));
+        setText("contractsUpdatedAt", formatDateTime(uiState.lastUpdatedAt));
+    }
+
+    function renderSavedContracts() {
+        if (!savedList) return;
+
+        const searchTerm = (searchInput ? searchInput.value : "").trim().toLowerCase();
+        const filtered = searchTerm
+            ? contracts.filter((c) => {
+                const haystack = [c.contractNumber, c.clientName, c.subject].join(" ").toLowerCase();
+                return haystack.includes(searchTerm);
+            })
+            : contracts;
+
+        setText("contractsCountHint", searchTerm
+            ? `${formatNumber(filtered.length)} من ${formatNumber(contracts.length)} عقد`
+            : `${formatNumber(contracts.length)} عقد`
+        );
+
+        if (!filtered.length) {
+            savedList.innerHTML = searchTerm
+                ? '<div class="empty-state">لا توجد نتائج مطابقة.</div>'
+                : '<div class="empty-state">لا توجد عقود محفوظة.</div>';
+            return;
+        }
+
+        savedList.innerHTML = filtered.map((contract) => `
+            <article class="saved-doc" data-id="${escapeAttribute(contract.id)}">
+                <div class="saved-doc-head">
+                    <h3>${escapeHtml(contract.contractNumber || "-")}</h3>
+                    <span class="status-badge status-badge-neutral">${escapeHtml(formatDate(contract.contractDate))}</span>
+                </div>
+                <div class="saved-doc-meta">
+                    <p>${escapeHtml(contract.clientName || "بدون عميل")}</p>
+                    <p>${contract.contractValue ? formatMoney(contract.contractValue, contract.currency) : "-"}</p>
+                </div>
+                <div class="saved-doc-actions">
+                    <button type="button" class="load-btn" data-action="load-contract">تحميل</button>
+                    <button type="button" class="delete-btn" data-action="delete-contract">حذف</button>
+                </div>
+            </article>
+        `).join("");
+    }
+
+    function renderClientPicker() {
+        if (!clientPicker) return;
+        clientPicker.innerHTML = '<option value="">عميل جديد</option>' +
+            customers.map((c) => `<option value="${escapeAttribute(c.id)}">${escapeHtml(c.name || c.title || "عميل")}</option>`).join("");
+    }
+
+    function renderAll() {
+        renderPreview();
+        renderMetrics();
+        renderSavedContracts();
+        renderClientPicker();
+    }
+
+    // Event listeners
+    if (form) {
+        form.addEventListener("input", renderPreview);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", () => renderSavedContracts());
+    }
+
+    if (clientPicker) {
+        clientPicker.addEventListener("change", (event) => {
+            const customer = customers.find((c) => c.id === event.target.value);
+            if (customer) {
+                if (fieldMap.contractClientName) fieldMap.contractClientName.value = customer.name || "";
+                if (fieldMap.contractClientTitle) fieldMap.contractClientTitle.value = customer.title || "";
+                if (fieldMap.contractClientPhone) fieldMap.contractClientPhone.value = customer.phone || "";
+                if (fieldMap.contractClientEmail) fieldMap.contractClientEmail.value = customer.email || "";
+                if (fieldMap.contractClientAddress) fieldMap.contractClientAddress.value = customer.address || "";
+                renderPreview();
+            }
+        });
+    }
+
+    addClick(saveBtn, () => {
+        const state = getFormState();
+        if (!state.contractNumber && !state.clientName && !state.subject) {
+            showToast("أدخل بيانات العقد قبل الحفظ");
+            return;
+        }
+
+        const existingIndex = contracts.findIndex((c) => c.id === state.id);
+        state.savedAt = new Date().toISOString();
+
+        if (existingIndex >= 0) {
+            contracts[existingIndex] = state;
+        } else {
+            contracts.unshift(state);
+        }
+
+        saveContracts();
+        logActivity("save", "contract", state.id, state.contractNumber, existingIndex >= 0 ? "تعديل عقد" : "حفظ عقد جديد");
+        renderAll();
+        showToast(existingIndex >= 0 ? "تم تحديث العقد" : "تم حفظ العقد");
+    });
+
+    addClick(newBtn, () => {
+        clearForm();
+        renderAll();
+        showToast("تم تجهيز عقد جديد");
+    });
+
+    addClick(printBtn, async () => {
+        if (!preview) return;
+        try {
+            const canvas = await renderDocumentCanvas(preview);
+            const imageDataUrl = canvas.toDataURL("image/png");
+            const printWindow = window.open("", "_blank");
+            if (printWindow) {
+                printWindow.document.write(buildPrintableMarkup(imageDataUrl));
+                printWindow.document.close();
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("تعذرت الطباعة");
+        }
+    });
+
+    addClick(pdfBtn, async () => {
+        if (!preview) return;
+        try {
+            const state = getFormState();
+            await downloadPdfFromPreview(preview, {
+                documentType: "contract",
+                documentNumber: state.contractNumber,
+                id: state.id
+            });
+            showToast("تم تنزيل PDF");
+        } catch (error) {
+            console.error(error);
+            showToast("تعذر تنزيل PDF");
+        }
+    });
+
+    if (savedList) {
+        savedList.addEventListener("click", (event) => {
+            const card = event.target.closest(".saved-doc");
+            if (!card) return;
+            const id = card.dataset.id;
+
+            if (event.target.closest("[data-action='load-contract']")) {
+                const contract = contracts.find((c) => c.id === id);
+                if (contract) {
+                    loadIntoForm(contract);
+                    renderAll();
+                    showToast("تم تحميل العقد");
+                }
+            }
+
+            if (event.target.closest("[data-action='delete-contract']")) {
+                if (!confirmDestructiveAction("هل تريد حذف هذا العقد؟")) return;
+                const deleted = contracts.find((c) => c.id === id);
+                contracts = contracts.filter((c) => c.id !== id);
+                saveContracts();
+                logActivity("delete", "contract", id, deleted?.contractNumber || "", "حذف عقد");
+                if (editingId === id) clearForm();
+                renderAll();
+                showToast("تم حذف العقد");
+            }
+        });
+    }
+
+    renderAll();
+
+    return {
+        refresh: () => renderAll(),
         flush: () => {}
     };
 }

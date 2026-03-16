@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTraffic Mini Accounting | العقود</title>
+    <meta name="description" content="صفحة العقود في البرنامج المحاسبي المصغر لشركة UTraffic.">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="contracts">
+    <div class="app-shell">
+        <header class="topbar site-topbar">
+            <div class="brand-block">
+                <div class="brand-logo-frame">
+                    <img src="assets/utraffic-logo.png" alt="شعار UTraffic">
+                </div>
+                <div class="brand-copy">
+                    <h1>العقود</h1>
+                </div>
+            </div>
+            <nav class="page-nav" aria-label="التنقل">
+                <a href="index.html">الرئيسية</a>
+                <a href="invoices.html">الفواتير</a>
+                <a href="quotes.html">عروض الأسعار</a>
+                <a href="customers.html">العملاء</a>
+                <a href="expenses.html">المصروفات</a>
+                <a class="active" href="contracts.html">العقود</a>
+                <a href="statements.html">كشف الحساب</a>
+                <a href="reports.html">القوائم المالية</a>
+            </nav>
+        </header>
+
+        <section class="hero-grid">
+            <article class="hero-panel hero-panel-primary">
+                <h2>إدارة العقود</h2>
+                <div class="topbar-actions">
+                    <button type="button" class="btn btn-primary" id="saveContractBtn">حفظ العقد</button>
+                    <button type="button" class="btn btn-secondary" id="newContractBtn">عقد جديد</button>
+                </div>
+            </article>
+
+            <article class="hero-panel hero-panel-highlight">
+                <div class="summary-head">
+                    <h3>المؤشرات</h3>
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <span>إجمالي العقود</span>
+                        <strong id="contractsMetricTotal">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>قيمة العقود</span>
+                        <strong id="contractsMetricValue">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>العقود النشطة</span>
+                        <strong id="contractsMetricActive">0</strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>آخر تحديث</span>
+                        <strong id="contractsUpdatedAt">-</strong>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <main class="workspace-grid">
+            <section class="panel-card editor-card">
+                <div class="panel-head">
+                    <h2>تفاصيل العقد</h2>
+                </div>
+
+                <form id="contractForm" class="billing-form">
+                    <div class="form-section">
+                        <div class="section-title">
+                            <h3>المعلومات الأساسية</h3>
+                        </div>
+                        <div class="fields-grid fields-grid-4">
+                            <label class="field">
+                                <span>رقم العقد</span>
+                                <input id="contractNumber" type="text" placeholder="CON-2026-001">
+                            </label>
+                            <label class="field">
+                                <span>تاريخ العقد</span>
+                                <input id="contractDate" type="date">
+                            </label>
+                            <label class="field">
+                                <span>قيمة العقد</span>
+                                <input id="contractValue" type="number" min="0" step="0.01" placeholder="0">
+                            </label>
+                            <label class="field">
+                                <span>العملة</span>
+                                <select id="contractCurrency">
+                                    <option value="SAR">ريال سعودي</option>
+                                    <option value="AED">درهم إماراتي</option>
+                                    <option value="USD">دولار أمريكي</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <h3>بيانات الشركة</h3>
+                        </div>
+                        <div class="fields-grid fields-grid-3">
+                            <label class="field">
+                                <span>اسم الشركة</span>
+                                <input id="contractCompanyName" type="text" placeholder="UTraffic">
+                            </label>
+                            <label class="field">
+                                <span>الهاتف</span>
+                                <input id="contractCompanyPhone" type="text" placeholder="+966 5X XXX XXXX">
+                            </label>
+                            <label class="field">
+                                <span>البريد الإلكتروني</span>
+                                <input id="contractCompanyEmail" type="email" placeholder="finance@utraffic.sa">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title section-title-inline">
+                            <h3>بيانات العميل (الطرف الثاني)</h3>
+                            <div class="inline-actions">
+                                <label class="field field-compact">
+                                    <span>عميل محفوظ</span>
+                                    <select id="contractClientPicker">
+                                        <option value="">عميل جديد</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="fields-grid fields-grid-4">
+                            <label class="field">
+                                <span>اسم العميل</span>
+                                <input id="contractClientName" type="text" placeholder="اسم العميل">
+                            </label>
+                            <label class="field">
+                                <span>الجهة أو المسؤول</span>
+                                <input id="contractClientTitle" type="text" placeholder="اسم الجهة">
+                            </label>
+                            <label class="field">
+                                <span>الهاتف</span>
+                                <input id="contractClientPhone" type="text" placeholder="+966 5X XXX XXXX">
+                            </label>
+                            <label class="field">
+                                <span>البريد الإلكتروني</span>
+                                <input id="contractClientEmail" type="email" placeholder="client@example.com">
+                            </label>
+                        </div>
+                        <label class="field field-full">
+                            <span>العنوان</span>
+                            <textarea id="contractClientAddress" rows="2" placeholder="المدينة - الدولة - العنوان"></textarea>
+                        </label>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <h3>نص العقد</h3>
+                        </div>
+                        <label class="field field-full">
+                            <span>الموضوع</span>
+                            <input id="contractSubject" type="text" placeholder="عقد تقديم خدمات تسويق رقمي">
+                        </label>
+                        <label class="field field-full">
+                            <span>نص العقد (يظهر كما تكتبه في المعاينة والتصدير)</span>
+                            <textarea id="contractBody" rows="16" placeholder="يتم بموجب هذا العقد الاتفاق بين الطرف الأول والطرف الثاني على ما يلي:
+
+١- نطاق العمل:
+...
+
+٢- المقابل المالي:
+...
+
+٣- مدة العقد:
+...
+
+٤- شروط وأحكام:
+..."></textarea>
+                        </label>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="section-title">
+                            <h3>التوقيعات</h3>
+                        </div>
+                        <div class="fields-grid fields-grid-2">
+                            <label class="field">
+                                <span>اسم ممثل الطرف الأول</span>
+                                <input id="contractSignatory1" type="text" placeholder="اسم ممثل الشركة">
+                            </label>
+                            <label class="field">
+                                <span>اسم ممثل الطرف الثاني</span>
+                                <input id="contractSignatory2" type="text" placeholder="اسم ممثل العميل">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button type="button" class="btn btn-secondary" id="contractPrintBtn">طباعة</button>
+                        <button type="button" class="btn btn-secondary" id="contractDownloadPdfBtn">تنزيل PDF</button>
+                    </div>
+                </form>
+            </section>
+
+            <div class="sidebar-column">
+                <section class="panel-card preview-card">
+                    <div class="panel-head">
+                        <h2>المعاينة</h2>
+                    </div>
+                    <div class="preview-shell">
+                        <article class="document-paper" id="contractPreview">
+                            <div class="paper-top-line"></div>
+                            <header class="paper-header">
+                                <div class="paper-brand">
+                                    <div class="paper-logo">
+                                        <img src="assets/utraffic-logo.png" alt="شعار UTraffic">
+                                    </div>
+                                    <div class="paper-brand-copy">
+                                        <p class="paper-overline">UTraffic</p>
+                                        <div class="paper-title-row">
+                                            <h2>عقد</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="paper-meta-card">
+                                    <div class="paper-meta-grid">
+                                        <div><span>رقم العقد</span><strong id="previewContractNumber">-</strong></div>
+                                        <div><span>التاريخ</span><strong id="previewContractDate">-</strong></div>
+                                        <div><span>القيمة</span><strong id="previewContractValue">-</strong></div>
+                                        <div><span>العملة</span><strong id="previewContractCurrency">-</strong></div>
+                                    </div>
+                                </div>
+                            </header>
+                            <section class="paper-addresses">
+                                <div class="paper-box">
+                                    <p class="paper-label">الطرف الأول</p>
+                                    <h3 id="previewContractCompany">UTraffic</h3>
+                                    <p id="previewContractCompanyMeta">finance@utraffic.sa</p>
+                                </div>
+                                <div class="paper-box">
+                                    <p class="paper-label">الطرف الثاني</p>
+                                    <h3 id="previewContractClient">اسم العميل</h3>
+                                    <p id="previewContractClientMeta">اسم الجهة</p>
+                                </div>
+                            </section>
+                            <section class="paper-contract-body">
+                                <h3 id="previewContractSubject" class="paper-contract-subject">موضوع العقد</h3>
+                                <div id="previewContractBody" class="paper-contract-text">نص العقد سيظهر هنا...</div>
+                            </section>
+                            <section class="paper-signatures">
+                                <div class="paper-signature-block">
+                                    <p class="paper-label">الطرف الأول</p>
+                                    <div class="paper-signature-line"></div>
+                                    <p id="previewSignatory1">اسم ممثل الشركة</p>
+                                </div>
+                                <div class="paper-signature-block">
+                                    <p class="paper-label">الطرف الثاني</p>
+                                    <div class="paper-signature-line"></div>
+                                    <p id="previewSignatory2">اسم ممثل العميل</p>
+                                </div>
+                            </section>
+                            <footer class="paper-final">
+                                <p id="previewContractFooter">UTraffic - finance@utraffic.sa</p>
+                            </footer>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel-card history-card">
+                    <div class="panel-head">
+                        <h2>العقود المحفوظة</h2>
+                        <span class="panel-hint" id="contractsCountHint">0 عقد</span>
+                    </div>
+                    <div class="search-bar">
+                        <input id="contractSearchInput" type="search" placeholder="ابحث بالرقم أو اسم العميل..." autocomplete="off">
+                    </div>
+                    <div id="savedContractsList" class="saved-docs"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+    <script src="vendor/html2canvas.min.js"></script>
+    <script src="vendor/jspdf.umd.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
