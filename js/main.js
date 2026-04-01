@@ -3500,7 +3500,7 @@ async function renderDocumentCanvas(previewElement) {
         allowTaint: false,
         backgroundColor: "#fffdf9",
         logging: false,
-        windowWidth: document.documentElement.scrollWidth
+        windowWidth: Math.max(previewElement.scrollWidth, 900)
     });
 }
 

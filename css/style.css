@@ -2445,6 +2445,7 @@ button {
 }
 
 .pdf-export .paper-main-grid {
+    grid-template-columns: 1fr;
     gap: 10px;
 }
 
@@ -2456,6 +2457,17 @@ button {
 
 .pdf-export .paper-totals-card {
     font-size: 0.8rem;
+    min-height: auto;
+}
+
+.pdf-export .total-row {
+    padding: 6px 0;
+    gap: 12px;
+}
+
+.pdf-export .paper-header {
+    gap: 10px;
+    padding-top: 8px;
 }
 
 .pdf-export .paper-support-grid {
