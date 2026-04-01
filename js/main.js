@@ -3505,14 +3505,16 @@ async function renderDocumentCanvas(previewElement) {
 }
 
 async function downloadPdfFromPreview(previewElement, doc) {
-    // Force full A4 width for crisp render
+    // Apply PDF export mode for proper A4 sizing
     const origStyle = previewElement.getAttribute("style") || "";
+    previewElement.classList.add("pdf-export");
     previewElement.style.width = "794px";
     previewElement.style.maxWidth = "none";
     previewElement.style.borderRadius = "0";
     previewElement.style.boxShadow = "none";
 
     const canvas = await renderDocumentCanvas(previewElement);
+    previewElement.classList.remove("pdf-export");
     previewElement.setAttribute("style", origStyle);
 
     const jsPdfCtor = window.jspdf?.jsPDF || window.jsPDF;

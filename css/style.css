@@ -2371,6 +2371,125 @@ button {
     }
 }
 
+/* PDF export mode — applied temporarily during html2canvas render */
+.document-paper.pdf-export {
+    padding: 28px 32px 20px;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.pdf-export .paper-top-line {
+    height: 6px;
+}
+
+.pdf-export .paper-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+}
+
+.pdf-export .paper-brand h2 {
+    font-size: 1.3rem;
+}
+
+.pdf-export .paper-brand-copy {
+    gap: 4px;
+}
+
+.pdf-export .paper-brand p {
+    font-size: 0.8rem;
+}
+
+.pdf-export .paper-meta-card {
+    padding: 10px;
+    border-radius: 12px;
+}
+
+.pdf-export .paper-meta-grid {
+    gap: 8px;
+}
+
+.pdf-export .paper-meta-grid span,
+.pdf-export .paper-label {
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+}
+
+.pdf-export .paper-meta-grid strong {
+    font-size: 0.85rem;
+}
+
+.pdf-export .paper-addresses {
+    gap: 10px;
+}
+
+.pdf-export .paper-box,
+.pdf-export .note-card {
+    padding: 10px 12px;
+    border-radius: 12px;
+}
+
+.pdf-export .paper-box h3 {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.pdf-export .paper-box p {
+    font-size: 0.8rem;
+}
+
+.pdf-export .paper-brief {
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.pdf-export .paper-main-grid {
+    gap: 10px;
+}
+
+.pdf-export .paper-table th,
+.pdf-export .paper-table td {
+    padding: 6px 6px;
+    font-size: 0.75rem;
+}
+
+.pdf-export .paper-totals-card {
+    font-size: 0.8rem;
+}
+
+.pdf-export .paper-support-grid {
+    gap: 10px;
+}
+
+.pdf-export .paper-final {
+    font-size: 0.85rem;
+}
+
+.pdf-export .paper-final p {
+    font-size: 0.78rem;
+}
+
+.pdf-export .paper-doc-type-label {
+    font-size: 1.4rem;
+}
+
+.pdf-export .paper-contract-subject {
+    font-size: 1rem;
+}
+
+.pdf-export .paper-contract-text {
+    font-size: 0.82rem;
+    line-height: 1.85;
+}
+
+.pdf-export .paper-signatures {
+    padding: 20px 0 8px;
+    margin-top: 16px;
+    gap: 24px;
+    font-size: 0.8rem;
+}
+
 @media print {
     @page {
         size: A4 portrait;
